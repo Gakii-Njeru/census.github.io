@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+      integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+      crossorigin=""
+    ></script>
+            
+    <style>
+     h1{
+    text-align: center;
+    font-style: italic;
+    padding: 0;
+    margin: 0;
+    background-color: cornsilk;
+  
+}
+      body {
+        margin: 0;
+        background-color: none;
+      }
+      #map {
+        height: 100vh;
+        width: 100vw;
+        position: absolute;
+        z-index: 1;
+      }
+      .sidebar {
+        background: none;
+        position: absolute;
+        top: 20;
+        right: 0;
+        z-index: 5;
+        height: 30vh;
+        padding: 5px;
+        color: red;
+        margin: 10px;
+        border-radius: 10px;
+      }
+      .sidebar p {
+        color: blueviolet;
+        font-weight: 500;
+        color: black;
+        font-size: 20px;
+      }
+      .sidebar input {
+        border-radius: 5px;
+        padding: 5px;
+      }
+    </style>
+  </head>
+ 
+  <body>
+    <h1>CENSUS 2019</h1>
+    <div id="map"></div>
+    <div class="sidebar">
+      <div>
+        <p>County</p>
+        <input type="text" name="County" id="county" value="" />
+      </div>
+      <div>
+        <p>Population 2019</p>
+        <input type="text" name="Population" id="pop" value="" />
+      </div>
+    </div>
+
+        <script>
+      // importing the geojson 
+      var position = [0.614058, 37.862076];
+      var mymap = L.map("map", {
+        center: position,
+        zoom: 6,
+        // zoomControl: false,
+        maxZoom: 10,
+        minZoom: 1,
+        scrollwheel: false,
+        legends: true,
+        infoControl: false,
+        attributionControl: true
+      });
+      const county = document.getElementById("county");
+      const population = document.getElementById("pop");
+
+    
+      const el = `<div><p>County</p><input type="text" name="county" id="county" value="" /></div><div><p>Population</p><input type="text" name="population" id="pop" value="34122" /></div></div>`;
+      function highlight(layer) {
+        population.value = layer.feature.properties.total_pop2019;
+        county.value = layer.feature.properties.Name;
+      }
+
+      function onEachFeature(feature, layer) {
+        // does this feature have a property named popupContent?
+        if (feature.properties && feature.properties.Name) {
+          // layer
+          layer.on({
+            mouseover: function(e) {
+              highlight(e.target);
+            }
+          });
+        }
+      }
+
+      let xhr = new XMLHttpRequest();
+      xhr.open("GET", "ke-counties.geojson");
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.responseType = "json";
+      xhr.onload = function() {
+        if (xhr.status !== 200) return xhr.response;
+
+        L.geoJSON(xhr.response, {
+          onEachFeature: onEachFeature
+        }).addTo(mymap);
+      };
+      xhr.send();
+    </script>
+      
+  </body>
+</html>
